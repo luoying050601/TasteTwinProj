@@ -1,9 +1,9 @@
 import type {ApiError} from './types';
 import {translate, type Locale} from './i18n';
-const base = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001').replace(/\/$/, '');
+const base = (import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '')).replace(/\/$/, '');
 export async function api<T>(path: string, body?: unknown, method = 'POST', locale:Locale = 'en-US'): Promise<T> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15000);
+  const timeout = setTimeout(() => controller.abort(), 90000);
   try {
     const response = await fetch(`${base}${path}`, {method, headers: {'Content-Type':'application/json','Accept-Language':locale}, ...(body === undefined ? {} : {body:JSON.stringify(body)}), signal:controller.signal});
     const envelope = await response.json();
