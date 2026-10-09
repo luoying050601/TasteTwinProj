@@ -165,5 +165,6 @@
   "wellbeing.balanced": "达到目标",
   "wellbeing.low": "待补充",
   "wellbeing.unknown": "暂无记录",
-  "roomControls": "点击地板行走 · 方向键移动 · 点击家具"
+  "roomControls": "点击地板行走 · 方向键移动 · 点击家具",
+  "panRoom": "拖动查看房间 · 点击家具"
 }

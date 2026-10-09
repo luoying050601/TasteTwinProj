@@ -31,3 +31,5 @@ Furniture room update: browser verified click-floor movement (50%,80.6%), ArrowR
 Production deployment (2026-10-09): Vercel frontend anonymous HTTP 200, Render Python 3.12.8 fixture backend health HTTP 200, correct production-origin CORS preflight, full public browser interpret/recommend/refine/select flow passed. Both deployments completed successfully. Vercel Git auto-deployment awaits GitHub App authorization; Render auto-deploy is enabled.
 
 Render full-site update: `/` returns HTML, `/tastetwin-hero.png` and `/docs` return 200. Public browser on onrender.com verified input → confirmation → three recommendations → selection. Local route checks verified SPA route 200, unknown /api and missing assets 404. API regression tests remain 18 passed.
+
+Mobile camera update: at 375px, fixed room width is 900px; document width stays 375px. Browser drag moved camera scrollLeft from 262.5 to 452.5 without moving the avatar or opening a dialog. Furniture click still opens the meal dialog. Touch uses native two-axis scrolling; mouse drag supported. Real phone hardware gesture testing remains pending.
