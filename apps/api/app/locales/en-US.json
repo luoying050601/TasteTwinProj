@@ -164,5 +164,6 @@
   "wellbeing.growing": "Growing",
   "wellbeing.balanced": "Target reached",
   "wellbeing.low": "Needs a refill",
-  "wellbeing.unknown": "No record"
+  "wellbeing.unknown": "No record",
+  "roomControls": "Click to walk · Arrow keys · Click an object"
 }

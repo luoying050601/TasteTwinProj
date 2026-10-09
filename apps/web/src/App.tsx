@@ -2,7 +2,7 @@ import {useState, useRef, useEffect} from 'react';
 import {api} from './api';
 import type {ApiError, Interpretation, Results, Selection, Stage, Constraints} from './types';
 import MealRow, {MealFacts} from './components/MealRow';
-import PixelTwin from './components/PixelTwin';
+import KitchenRoom from './components/KitchenRoom';
 import {useI18n, translate, type Translate} from './i18n';
 
 
@@ -96,13 +96,7 @@ export default function App() {
  return <div className={`shell interactive-shell world-shell world-shell--${vitality}`}>
   <header className="topbar"><button className="brand brand-home" onClick={()=>openArea('home')} disabled={busy} aria-label={t('backHome')}><span className="brand-icon">✿</span>Taste<span>Twin</span></button><div className="header-actions"><label className="language-control"><span className="sr-only">{t('language')}</span><select aria-label={t('language')} value={locale} disabled={busy} onChange={e=>changeLanguage(e.target.value as typeof locale)}><option value="en-US">EN</option><option value="ja-JP">日本語</option><option value="zh-CN">中文</option></select></label><details className="data-status"><summary className="mode">● {t('demo')}{mode==='baseline'?` · ${t('tasteOff')}`:''}</summary><div>{t('dataNotice')}</div></details><button className="text-button" disabled={busy} onClick={()=>void reset()}>{t('reset')} ↺</button></div></header>
   <main>
-   <section className="farm-stage kitchen-stage" aria-label={t('farmScene')}>
-    <div className="farm-sun" aria-hidden="true"/><div className="farm-cloud cloud-one" aria-hidden="true"/><div className="farm-cloud cloud-two" aria-hidden="true"/>
-    <div className="farm-house" aria-hidden="true"><div className="farm-roof"/><div className="farm-window"/><div className="farm-door"/></div><div className="farm-tree tree-left" aria-hidden="true"/><div className="farm-tree tree-right" aria-hidden="true"/>
-    <div className="farm-path" aria-hidden="true"/><div className="farm-garden" aria-hidden="true">{Array.from({length:12},(_,i)=><span key={i}/>)}</div>
-    <button className={`resident resident--${vitality}`} onClick={()=>openArea('today')} aria-label={t('showWellbeing')}><span className="resident-heart" aria-hidden="true">{vitality==='balanced'?'♥ ♥ ♥':vitality==='growing'?'♥ ♥ ♡':vitality==='low'?'♥ ♡ ♡':'♡ ♡ ♡'}</span><PixelTwin state={busy?'thinking':selection||vitality==='balanced'?'happy':'idle'}/><span className="resident-status">{t('wellbeing.'+vitality)}</span></button>
-    <nav className="farm-cards" aria-label={t('areas')}>{areas.map(area=><button key={area.id} className={`farm-card farm-card--${area.id} ${view===area.id?'active':''}`} aria-label={area.title} aria-pressed={view===area.id} disabled={busy} onClick={()=>openArea(area.id)}><span className={`pixel-area-icon pixel-area-icon--${area.icon}`} aria-hidden="true"/><span>{area.title}</span></button>)}</nav>
-   </section>
+   <KitchenRoom open={view!=='home'} busy={busy} selection={!!selection} vitality={vitality} onOpen={openArea}/>
    {view!=='home'&&<div className="scene-overlay" ref={dialogRef} role="dialog" aria-modal="true" aria-label={areas.find(a=>a.id===view)?.title} onKeyDown={e=>{if(e.key==='Escape'&&!busy){openArea('home');return;}if(e.key==='Tab'){const nodes=Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled),textarea:not(:disabled),select:not(:disabled),summary,[tabindex="0"]')||[]);const first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}}}><button className="panel-close" disabled={busy} onClick={()=>openArea('home')} aria-label={t('closePanel')}>×</button>
     <div className="area-content">
      {errorPanel}

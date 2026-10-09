@@ -76,3 +76,5 @@ Local preview is available at the addresses above while the dev process runs. Cl
 ## Kitchen scene interaction
 
 The opening screen is a full-screen illustration; the entered kitchen uses a separate calm, original SVG background (`apps/web/public/kitchen-room.svg`). Enter opens a 2D kitchen hub with four object hotspots; each opens a scrollable dialog. The original pixel companion remains visible during input/search/selection. Hearts show only recorded protein progress toward the configured target (not a health diagnosis); choosing a meal changes the expression without changing recorded intake. Mobile dialogs appear below the companion. Copy remains in the shared three-language JSON files.
+
+Interactive room: `KitchenRoom.tsx` renders cabinets and furniture as native elements. Fridge opens preferences, table opens nutrition records, wall map opens meal search, journal opens the companion view. Click the floor or use arrows/WASD to walk; movement is bounded and avoids the lower furniture zones. Opening a dialog pauses movement. Desktop furniture labels appear on hover/focus; mobile labels stay visible.

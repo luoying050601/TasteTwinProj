@@ -25,3 +25,5 @@ Responsive update: production build passes. Browser verified 375px home, recomme
 Kitchen scene update: full-image entrance → kitchen hotspot → input/confirmation/recommendation dialog → selection → happy companion → close dialog verified in browser. At 375px, document width stays 375px, resident bottom 368px remains above dialog top 398px. Production build and 18 API tests pass. Dialog supports close button, Escape and keyboard focus containment.
 
 Calm kitchen backdrop update: independent SVG with muted cabinets, tiles and floor. Desktop visual inspection and 375px dialog check passed (scrollWidth=clientWidth). Welcome image unchanged. Production build passes.
+
+Furniture room update: browser verified click-floor movement (50%,80.6%), ArrowRight movement (53%,80.6%), fridge preference dialog and mobile table nutrition dialog. 375px has no horizontal overflow. Build and 18 backend tests pass. Character remains visible above mobile dialog.

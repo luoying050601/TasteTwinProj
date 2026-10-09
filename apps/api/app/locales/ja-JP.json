@@ -164,5 +164,6 @@
   "wellbeing.growing": "育ち途中",
   "wellbeing.balanced": "目標達成",
   "wellbeing.low": "補給しよう",
-  "wellbeing.unknown": "記録なし"
+  "wellbeing.unknown": "記録なし",
+  "roomControls": "床をクリック・矢印キーで移動・家具をクリック"
 }
