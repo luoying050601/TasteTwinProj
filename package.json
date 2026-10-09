@@ -1,0 +1,24 @@
+{
+  "name": "tastetwinproj",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": [
+    "apps/web"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n API,WEB \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "cd apps/api && .venv/bin/python -m uvicorn app.main:app --reload --reload-dir app --host 127.0.0.1 --port 3001",
+    "dev:web": "npm run dev -w @tastetwin/web",
+    "build": "npm run build -w @tastetwin/web",
+    "typecheck": "tsc --noEmit -p apps/web",
+    "test": "cd apps/api && .venv/bin/python -m pytest -q"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0",
+    "typescript": "^5.9.0"
+  }
+}

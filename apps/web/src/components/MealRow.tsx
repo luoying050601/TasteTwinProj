@@ -1,0 +1,7 @@
+import type { Recommendation } from '../types';
+export function MealFacts({item}: {item: Recommendation}) {
+  return <div className="facts"><span>¥{item.price} <small>演示价格</small></span><span>{item.walkMinutes} min <small>演示步行</small></span><span>{item.nutritionContribution.proteinG == null ? '未提供' : `${item.nutritionContribution.proteinG} g`} <small>蛋白质 · demo</small></span><span>{item.nutritionContribution.fiberG == null ? '未提供' : `${item.nutritionContribution.fiberG} g`} <small>纤维 · demo</small></span></div>;
+}
+export default function MealRow({item,disabled,onSelect}: {item:Recommendation;disabled:boolean;onSelect:(id:string)=>void}) {
+ return <article className="meal"><div className="meal-rank">{String(item.rank).padStart(2,'0')}</div><div className="meal-main"><div className="meal-heading"><div><small>{item.placeName}</small><h3>{item.menuName}</h3></div><span className="taste">Taste fit · {item.tasteFit} {item.tasteFit !== 'unavailable' && '(fixture)'}</span></div><MealFacts item={item}/><ul className="reasons">{item.reason.map(reason=><li key={reason}>{reason}</li>)}</ul><details><summary>数据来源与成分</summary><p>地点 / 菜单 / 营养 / 价格 / 步行：全部 fixture，虚构数据 · {item.provenance.observedAt}</p><p>{item.allergenStatus === 'unknown' ? '成分未知，请核实；不能视为安全。' : `演示成分信息：${item.allergens.join(', ')}。仅用于验证过滤逻辑。`}</p></details></div><button disabled={disabled} onClick={()=>onSelect(item.candidateId)} className="choose">选择这餐 ↗</button></article>;
+}

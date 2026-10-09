@@ -1,0 +1,1 @@
+{"framework":"vite","buildCommand":"npm run build -w @tastetwin/web","outputDirectory":"dist","rewrites":[{"source":"/(.*)","destination":"/index.html"}]}
