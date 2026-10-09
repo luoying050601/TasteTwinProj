@@ -72,3 +72,7 @@ The generated application source is MIT licensed; see LICENSE. The supplied hero
 ## Demo and verification
 
 Local preview is available at the addresses above while the dev process runs. Cloud URL, public visibility for judging, actual Qloo response evidence, agent framework proof, English UI, and submission recording remain future work. See `docs/VERIFICATION.md` for checks performed on this framework.
+
+## Kitchen scene interaction
+
+The opening screen is a full-screen illustration. Enter opens a 2D kitchen hub with four object hotspots; each opens a scrollable dialog. The original pixel companion remains visible during input/search/selection. Hearts show only recorded protein progress toward the configured target (not a health diagnosis); choosing a meal changes the expression without changing recorded intake. Mobile dialogs appear below the companion. Copy remains in the shared three-language JSON files.

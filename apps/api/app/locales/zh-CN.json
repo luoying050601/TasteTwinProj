@@ -156,5 +156,13 @@
   "profileTag": "YOU",
   "todayTag": "TODAY",
   "discoverTag": "DISCOVER",
-  "twinTag": "TWIN"
+  "twinTag": "TWIN",
+  "enterWorld": "进入",
+  "farmScene": "你的像素厨房",
+  "showWellbeing": "查看营养状态",
+  "closePanel": "关闭面板",
+  "wellbeing.growing": "成长中",
+  "wellbeing.balanced": "达到目标",
+  "wellbeing.low": "待补充",
+  "wellbeing.unknown": "暂无记录"
 }

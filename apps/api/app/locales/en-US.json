@@ -156,5 +156,13 @@
   "profileTag": "YOU",
   "todayTag": "TODAY",
   "discoverTag": "DISCOVER",
-  "twinTag": "TWIN"
+  "twinTag": "TWIN",
+  "enterWorld": "Enter",
+  "farmScene": "Your pixel kitchen",
+  "showWellbeing": "View nutrition status",
+  "closePanel": "Close panel",
+  "wellbeing.growing": "Growing",
+  "wellbeing.balanced": "Target reached",
+  "wellbeing.low": "Needs a refill",
+  "wellbeing.unknown": "No record"
 }

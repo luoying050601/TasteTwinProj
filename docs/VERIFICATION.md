@@ -21,3 +21,5 @@ Four-section interaction update: homepage shows four card buttons with no inline
 Language update: English default, Japanese and Simplified Chinese shared JSON dictionaries. Tests verify key/placeholder parity, three-language API flows, localized errors and identical recommendation values across languages. Frontend build passes. Language alone persists across browser reloads.
 
 Responsive update: production build passes. Browser verified 375px home, recommendation and selected Twin at scrollWidth=clientWidth; 320px Twin has no horizontal overflow; 768px tablet home uses two columns and no horizontal overflow. Touch controls use 44px minimum targets, mobile inputs use 16px fonts. Desktop retains four cards. Real iOS/Android devices have not yet been tested.
+
+Kitchen scene update: full-image entrance → kitchen hotspot → input/confirmation/recommendation dialog → selection → happy companion → close dialog verified in browser. At 375px, document width stays 375px, resident bottom 368px remains above dialog top 398px. Production build and 18 API tests pass. Dialog supports close button, Escape and keyboard focus containment.

@@ -156,5 +156,13 @@
   "profileTag": "YOU",
   "todayTag": "TODAY",
   "discoverTag": "DISCOVER",
-  "twinTag": "TWIN"
+  "twinTag": "TWIN",
+  "enterWorld": "はじめる",
+  "farmScene": "ピクセルキッチン",
+  "showWellbeing": "栄養の状態を見る",
+  "closePanel": "閉じる",
+  "wellbeing.growing": "育ち途中",
+  "wellbeing.balanced": "目標達成",
+  "wellbeing.low": "補給しよう",
+  "wellbeing.unknown": "記録なし"
 }
