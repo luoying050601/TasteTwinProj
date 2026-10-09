@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import asyncio
 from contextlib import asynccontextmanager
 import time
@@ -8,7 +9,8 @@ from copy import deepcopy
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from .models import InterpretRequest, RecommendRequest, RefineRequest, SelectRequest
 from .parser import interpret, refine_constraints
@@ -162,3 +164,20 @@ async def select(body: SelectRequest, request: Request):
 async def delete_session(session_id: str, request: Request):
     sessions.pop(session_id, None)
     return ok(request, {"deleted":True})
+
+# Render serves the compiled web app alongside /api; Vercel remains independent.
+web_dist = Path(__file__).parent / "static"
+if web_dist.is_dir():
+    if (web_dist / "assets").is_dir():
+        app.mount("/assets", StaticFiles(directory=web_dist / "assets"), name="web-assets")
+
+    @app.get("/{web_path:path}", include_in_schema=False)
+    async def web_page(web_path: str):
+        if web_path == "api" or web_path.startswith("api/"):
+            return JSONResponse({"detail": "Not Found"}, status_code=404)
+        candidate = (web_dist / web_path).resolve()
+        if candidate.is_relative_to(web_dist.resolve()) and candidate.is_file():
+            return FileResponse(candidate)
+        if Path(web_path).suffix:
+            return JSONResponse({"detail": "Not Found"}, status_code=404)
+        return FileResponse(web_dist / "index.html")
