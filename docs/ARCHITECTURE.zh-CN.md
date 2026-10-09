@@ -112,6 +112,10 @@ Vercel 只部署 apps/web 静态构建；Render 部署 apps/api FastAPI。浏览
 
 ## 当前限制
 
-规则解析器只覆盖少量中英文关键词，不能理解任意自然语言或复杂否定；过敏字段使用英文稳定代码并要求确认。fixture 只用于 Tokyo 虚构场景。无真实 Qloo、LLM、Agent 框架、地图、真实菜单或营养来源。没有完成 live 401/429/超时测试。当前工具轨迹仅代表确定性后端函数。部署配置尚未实际云部署验证。单进程会话架构需要在扩大部署前替换。
+规则解析器只覆盖少量英、日、中关键词，不能理解任意自然语言或复杂否定；过敏字段使用英文稳定代码并要求确认。fixture 只用于 Tokyo 虚构场景。无真实 Qloo、LLM、Agent 框架、地图、真实菜单或营养来源。没有完成 live 401/429/超时测试。当前工具轨迹仅代表确定性后端函数。部署配置尚未实际云部署验证。单进程会话架构需要在扩大部署前替换。
 
 资料中的比赛日期和资格条款在本次未成功独立核验，不作为官方结论。Devpost 链接无法通过检索工具读取。Qloo 的官方公共文档仓库可用于下一阶段 API 核验：https://github.com/qloo/docs-public 。部署参考：https://vercel.com/docs/frameworks/frontend/vite 与 https://render.com/docs/deploy-fastapi 。
+
+## 三语文案
+
+默认英文，页头支持 English / 日本語 / 中文切换。前后端共享 `apps/api/app/locales/` 的三份 JSON，前端用 key 渲染，后端按 Accept-Language 返回提示与 fixture 文案。切换保留当前功能区、表单与已选餐品；浏览器仅持久化语言偏好。规则解析支持有限三语关键词，仍需确认识别结果。

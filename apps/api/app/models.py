@@ -42,7 +42,7 @@ class Constraints(StrictModel):
 class InterpretRequest(StrictModel):
     sessionId: UUID
     message: str = Field(min_length=1, max_length=500)
-    locale: Literal["zh-CN", "en-US"] = "zh-CN"
+    locale: Literal["zh-CN", "en-US", "ja-JP"] = "en-US"
     location: Location = Field(default_factory=Location)
     dailySummary: DailySummary | None = None
     allergens: list[Allergen] = Field(default_factory=list, max_length=20)

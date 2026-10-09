@@ -1,10 +1,12 @@
+import {useI18n} from '../i18n';
 type TwinState = 'idle' | 'thinking' | 'happy';
 
 /** Original farm companion drawn on a 32 × 40 pixel grid. */
 export default function PixelTwin({state = 'idle'}: {state?: TwinState}) {
+  const {t}=useI18n();
   const happy = state === 'happy';
   return <div className={`pixel-scene pixel-scene--${state}`}>
-    <svg className="pixel-twin" viewBox="0 0 32 40" role="img" aria-label={happy ? '开心的像素农场伙伴' : state === 'thinking' ? '思考中的像素农场伙伴' : '穿绿色围裙的像素农场伙伴'} shapeRendering="crispEdges">
+    <svg className="pixel-twin" viewBox="0 0 32 40" role="img" aria-label={t(happy?'twinHappy':state==='thinking'?'twinThinking':'twinIdle')} shapeRendering="crispEdges">
       <ellipse cx="16" cy="38" rx="9" ry="1" fill="#7d824c" opacity=".3"/>
       <g className="pixel-character">
         {/* Hair bun and stepped silhouette. */}
@@ -36,6 +38,6 @@ export default function PixelTwin({state = 'idle'}: {state?: TwinState}) {
         {happy && <g fill="#d7a445"><path d="M3 8h1v2h2v1H4v2H3v-2H1v-1h2Z"/><path d="M29 19h1v2h2v1h-2v2h-1v-2h-2v-1h2Z"/></g>}
       </g>
     </svg>
-    <span className="pixel-name">TASTE TWIN · {happy ? '选好啦' : state === 'thinking' ? '想一想' : '陪你选餐'}</span>
+    <span className="pixel-name">TASTE TWIN · {t(state)}</span>
   </div>;
 }

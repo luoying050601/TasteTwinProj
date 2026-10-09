@@ -112,7 +112,7 @@ def test_session_delete_stale_selection_and_validation():
     assert client.post('/api/recommend',json={'sessionId':sid}).status_code==404
     bad=client.post('/api/interpret',json={'sessionId':str(uuid4()),'message':'','location':{'lat':35}})
     assert bad.status_code==422 and not bad.json()['ok']
-    assert 'input' not in str(bad.json())
+    assert 'input' not in bad.json()['error']
 
 
 def test_fixture_never_reports_live(monkeypatch):

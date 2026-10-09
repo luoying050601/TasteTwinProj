@@ -8,3 +8,5 @@
 .area-card .pixel-area-icon{margin-bottom:23px}.area-card{min-height:200px}@media(max-width:700px){.area-card{min-height:182px}}
 
 .home-hero h1 span{white-space:nowrap}
+
+.language-control{display:inline-flex}.language-control select{width:78px;background:#fffdf6;border:1px solid #dce0ce;padding:5px 7px;font-size:11px;border-radius:5px;line-height:1.5}.header-actions{flex-wrap:wrap}.area-card h2{line-height:1.5}.pixel-name{white-space:nowrap;font-size:8px}.area-toolbar nav{flex-wrap:wrap}.interactive-shell .area-tab{white-space:nowrap}@media(max-width:700px){.header-actions{flex-direction:row;align-items:center;justify-content:flex-end;max-width:210px;gap:6px}.language-control select{width:67px;font-size:10px;padding:4px}.area-toolbar nav{justify-content:start;gap:5px}.area-tab{font-size:10px;padding:7px 9px}.home-hero h1{font-size:32px}.area-card h2{font-size:15px}.pixel-name{font-size:7px}}

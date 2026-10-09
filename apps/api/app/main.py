@@ -14,6 +14,7 @@ from .models import InterpretRequest, RecommendRequest, RefineRequest, SelectReq
 from .parser import interpret, refine_constraints
 from .qloo import FixtureTasteProvider
 from .ranking import eligible, rank
+from .i18n import normalize_locale, text as tr, localize_recommendation
 
 load_dotenv()
 @asynccontextmanager
@@ -34,7 +35,7 @@ async def lifespan(app):
         pass
 
 app = FastAPI(lifespan=lifespan,title="TasteTwin API", version="0.1.0", description="Framework with fixture data and deterministic rule parsing; live integrations are pending.")
-app.add_middleware(CORSMiddleware, allow_origins=[x.strip() for x in os.getenv("WEB_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")], allow_methods=["GET","POST","DELETE"], allow_headers=["Content-Type"])
+app.add_middleware(CORSMiddleware, allow_origins=[x.strip() for x in os.getenv("WEB_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")], allow_methods=["GET","POST","DELETE"], allow_headers=["Content-Type","Accept-Language"])
 logger = logging.getLogger("uvicorn.error")
 sessions: dict = {}
 TTL = int(os.getenv("SESSION_TTL_SECONDS", "3600"))
@@ -53,6 +54,7 @@ def get_session(session_id):
 
 @app.middleware("http")
 async def request_metadata(request: Request, call_next):
+    request.state.locale = normalize_locale(request.headers.get("accept-language","en-US"))
     request.state.request_id = "req_" + str(uuid4())
     start = time.monotonic()
     response = await call_next(request)
@@ -64,7 +66,7 @@ def ok(request, data, warnings=None):
     return {"ok":True, "requestId":request.state.request_id, "data":data, "warnings": warnings or []}
 
 def error_response(request, code, message, status, retryable=False):
-    return JSONResponse(status_code=status, content={"ok":False, "requestId":request.state.request_id, "error":{"code":code,"message":message,"retryable":retryable}})
+    return JSONResponse(status_code=status, content={"ok":False, "requestId":request.state.request_id, "error":{"code":code,"message":tr(request.state.locale,code),"retryable":retryable}})
 
 @app.exception_handler(AppError)
 async def app_error(request, exc):
@@ -109,9 +111,10 @@ async def ensure_candidates(session):
         session["candidates"] = eligible(c)
         session["tasteOrder"] = await FixtureTasteProvider().rank_places(cuisines=c["cuisines"], ambience=c["ambience"], city=city)
 
-def response_results(session, limit):
+def response_results(session, limit, locale="en-US"):
     gap = session["parsed"]["nutritionGap"]
     recommendations = rank(session["candidates"], gap, session["tasteOrder"], session["enabled"], limit)
+    recommendations = [localize_recommendation(item, locale, gap) for item in recommendations]
     session["visible"] = recommendations
     all_count = max(1, len(session["candidates"]))
     return {"dataMode":"fixture" if session["enabled"] else "baseline", "candidateSource":"fixture", "qlooUsed":False,
@@ -119,9 +122,9 @@ def response_results(session, limit):
         "comparison":{"candidateIds":[x["candidateId"] for x in session["candidates"]],
             "withTaste":[x["candidateId"] for x in rank(session["candidates"],gap,session["tasteOrder"],True,all_count)],
             "withoutTaste":[x["candidateId"] for x in rank(session["candidates"],gap,session["tasteOrder"],False,all_count)],
-            "label":"同一合格候选集的演示排序；没有真实 Qloo 证据"},
+            "label":tr(locale,"compareLabel")},
         "trace":[{"tool":x,"status":"completed","mode":"fixture" if x == "taste_fixture" else "rules"} for x in ["nutrition_gap","safety_filter","taste_fixture","menu_catalog","eligibility_filter","rank_meals"]],
-        "emptyMessage":None if recommendations else "没有同时满足全部条件的套餐。可修改原句放宽预算或距离，过敏条件仍需保留。"}
+        "emptyMessage":None if recommendations else tr(locale,"EMPTY")}
 
 @app.post("/api/recommend")
 async def recommend(body: RecommendRequest, request: Request):
@@ -131,28 +134,29 @@ async def recommend(body: RecommendRequest, request: Request):
     s["selected"] = None
     if os.getenv("DATA_MODE", "fixture") != "fixture":
         raise AppError("LIVE_NOT_IMPLEMENTED", "当前框架尚未接入真实 Qloo，请使用 fixture 模式", 503)
-    return ok(request, response_results(s, body.limit), ["所有地点、菜单、营养、价格、步行和口味排序均为虚构演示数据；Qloo 未连接。"])
+    return ok(request, response_results(s, body.limit, request.state.locale), [tr(request.state.locale,"dataNotice")])
 
 @app.post("/api/refine")
 async def refine(body: RefineRequest, request: Request):
     s = get_session(body.sessionId)
     if s["candidates"] is None: raise AppError("SEARCH_REQUIRED", "请先确认并查找")
-    try: constraints, changes = refine_constraints(s["parsed"]["constraints"], body.refinement)
+    try: constraints, changes = refine_constraints(s["parsed"]["constraints"], body.refinement, request.state.locale)
     except ValueError as exc: raise AppError("REFINEMENT_UNSUPPORTED", str(exc))
     s["parsed"]["constraints"] = constraints
     s["changes"].extend(changes)
     s["candidates"] = eligible(constraints)
     s["selected"] = None
-    return ok(request, response_results(s, 2))
+    return ok(request, response_results(s, 2, request.state.locale))
 
 @app.post("/api/select")
 async def select(body: SelectRequest, request: Request):
     s = get_session(body.sessionId)
     item = next((x for x in s["visible"] if x["candidateId"] == body.candidateId), None)
     if not item: raise AppError("CANDIDATE_NOT_AVAILABLE", "这项已不在当前结果中，请重新选择", 409)
+    item = localize_recommendation(item,request.state.locale,s["parsed"]["nutritionGap"])
     s["selected"] = deepcopy(item)
     return ok(request, {"selected":True,"recommendation":item,"preview":{**item["nutritionContribution"], **{k:item[k] for k in ["price","currency","walkMinutes","tasteFit"]}},
-        "twinMessage":"这份选择符合你确认的条件；真实餐食的菜单和成分仍需核实。"})
+        "twinMessage":tr(request.state.locale,"twinFeedback")})
 
 @app.delete("/api/sessions/{session_id}")
 async def delete_session(session_id: str, request: Request):

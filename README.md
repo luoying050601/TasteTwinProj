@@ -43,7 +43,7 @@ npm run build
 npm run test
 ```
 
-Home has four clickable sections: You (preferences), Today (nutrition summary), Discover (search and recommendations), and Twin (pixel companion and selected meal). The four sections share page-session state. In Discover: 找下一餐 → confirm → three meals → taste toggle → 再近一点 → two meals → select → Twin Preview. Explicit allergy codes: peanut, soy, milk, egg, wheat, fish, shellfish, sesame. The parser is limited and deterministic; always review the confirmation. The UI currently uses Chinese; an English judge flow is a later release task.
+Home has four clickable sections: You (preferences), Today (nutrition summary), Discover (search and recommendations), and Twin (pixel companion and selected meal). The four sections share page-session state. In Discover: 找下一餐 → confirm → three meals → taste toggle → 再近一点 → two meals → select → Twin Preview. Explicit allergy codes: peanut, soy, milk, egg, wheat, fish, shellfish, sesame. The parser is limited and deterministic; always review the confirmation. The UI defaults to English and supports Japanese and Simplified Chinese. The header language selector preserves the current page and meal selection. Frontend and backend share copy in `apps/api/app/locales/{en-US,ja-JP,zh-CN}.json`; use matching keys and placeholders when editing translations.
 
 ## Demo mode versus live mode
 
@@ -55,7 +55,7 @@ Five fictional candidate records are in `catalog.py`. Unknown nutrition is null,
 
 ## Safety and privacy
 
-Health and allergy inputs stay within the local backend. The Qloo provider interface only receives taste and city fields. Sessions use UUIDs and a one-hour expiry in a single process; restart discards all sessions. Start over deletes the active backend session. No browser storage is used. Use a single worker and a single instance until a shared session store is implemented. Logs omit full input bodies; nutrition values are general dietary support, not diagnosis.
+Health and allergy inputs stay within the local backend. The Qloo provider interface only receives taste and city fields. Sessions use UUIDs and a one-hour expiry in a single process; restart discards all sessions. Start over deletes the active backend session. Only the language preference is stored in browser localStorage; health inputs and sessions are not persisted there. Use a single worker and a single instance until a shared session store is implemented. Logs omit full input bodies; nutrition values are general dietary support, not diagnosis.
 
 ## Deployment
 
