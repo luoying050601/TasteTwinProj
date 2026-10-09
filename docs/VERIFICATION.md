@@ -27,3 +27,5 @@ Kitchen scene update: full-image entrance → kitchen hotspot → input/confirma
 Calm kitchen backdrop update: independent SVG with muted cabinets, tiles and floor. Desktop visual inspection and 375px dialog check passed (scrollWidth=clientWidth). Welcome image unchanged. Production build passes.
 
 Furniture room update: browser verified click-floor movement (50%,80.6%), ArrowRight movement (53%,80.6%), fridge preference dialog and mobile table nutrition dialog. 375px has no horizontal overflow. Build and 18 backend tests pass. Character remains visible above mobile dialog.
+
+Production deployment (2026-10-09): Vercel frontend anonymous HTTP 200, Render Python 3.12.8 fixture backend health HTTP 200, correct production-origin CORS preflight, full public browser interpret/recommend/refine/select flow passed. Both deployments completed successfully. Vercel Git auto-deployment awaits GitHub App authorization; Render auto-deploy is enabled.

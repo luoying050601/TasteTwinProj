@@ -61,7 +61,7 @@ Health and allergy inputs stay within the local backend. The Qloo provider inter
 
 Backend Render Blueprint: `render.yaml`; Python runtime, root `apps/api`, install requirements, run `uvicorn app.main:app --host 0.0.0.0 --port $PORT`. Set `WEB_ORIGINS` to the exact Vercel HTTPS origin. Keep one instance / worker.
 
-Frontend Vercel: root `apps/web`, Vite framework, build `npm run build`, output `dist`. Set `VITE_API_BASE_URL` to the Render HTTPS URL. `vercel.json` contains the SPA fallback. Monorepo installs should include the repository root workspace lockfile. Both deployments are configuration-ready, but have not been deployed or tested on cloud platforms.
+Frontend Vercel: root `apps/web`, Vite framework, build `npm run build`, output `dist`. Set `VITE_API_BASE_URL` to the Render HTTPS URL. `vercel.json` contains the SPA fallback. Monorepo installs should include the repository root workspace lockfile. Both services are deployed. See `docs/DEPLOYMENT.md` for URLs and operational settings.
 
 References: [Vercel Vite](https://vercel.com/docs/frameworks/frontend/vite), [Render FastAPI](https://render.com/docs/deploy-fastapi), [Qloo official public API docs](https://github.com/qloo/docs-public).
 
