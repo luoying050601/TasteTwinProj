@@ -10,7 +10,7 @@ Project `yin-g/tastetwinproj`. Repository root (`.`), `npm ci`, `npm run build`,
 
 ## Render
 
-Service `tastetwin-api`, ID `srv-db46cd3l550s73anlftg`. GitHub repository `luoying050601/TasteTwinProj`, branch `main`, root `apps/api`, Singapore, Free instance. Python 3.12.8. Build `pip install -r requirements.txt`; start `uvicorn app.main:app --host 0.0.0.0 --port $PORT`; health path `/api/health`. Auto deploy on commit is enabled.
+Service `tastetwin-api`, ID `srv-db46cd3l550s73anlftg`. GitHub repository `luoying050601/TasteTwinProj`, branch `main`, root `apps/api`, Singapore, Free instance. Python 3.12.8. Build `bash ../../scripts/build-render.sh`; start `uvicorn app.main:app --host 0.0.0.0 --port $PORT`; health path `/api/health`. Auto deploy on commit is enabled.
 
 Variables: `DATA_MODE=fixture`, `PYTHON_VERSION=3.12.8`, `WEB_ORIGINS=https://tastetwinproj.vercel.app`. One instance, one process; sessions expire after one hour and are lost on restart. Preview Vercel domains are not automatically added to CORS.
 
@@ -19,3 +19,7 @@ Free Render services sleep after inactivity, so first requests can take 50 secon
 Verified on 2026-10-09 (Asia/Tokyo): anonymous frontend HTTP 200, backend health HTTP 200, correct CORS preflight for the production frontend.
 
 Public browser flow verified: interpret → confirm → 3 recommendations → Closer produces 2 at 10 minutes → select chicken bento → happy companion. Screenshot: `production-preview.png`. Local backend regression tests: 18 passed.
+
+## Full website on Render
+
+https://tastetwin-api.onrender.com now serves the same frontend and the FastAPI API on one origin. The build script compiles Vite with an empty API base and copies the frontend into `apps/api/app/static`. Static assets and SPA routes are served by FastAPI, with `/api` and `/docs` preserved. The independent Vercel deployment continues to call the Render API.
