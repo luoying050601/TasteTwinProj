@@ -43,7 +43,7 @@ npm run build
 npm run test
 ```
 
-Default flow: Ask TasteTwin → confirm → three meals → taste toggle → 再近一点 → two meals → select → Preview. Explicit allergy codes: peanut, soy, milk, egg, wheat, fish, shellfish, sesame. The parser is limited and deterministic; always review the confirmation. The UI currently uses Chinese; an English judge flow is a later release task.
+Home has four clickable sections: You (preferences), Today (nutrition summary), Discover (search and recommendations), and Twin (pixel companion and selected meal). The four sections share page-session state. In Discover: 找下一餐 → confirm → three meals → taste toggle → 再近一点 → two meals → select → Twin Preview. Explicit allergy codes: peanut, soy, milk, egg, wheat, fish, shellfish, sesame. The parser is limited and deterministic; always review the confirmation. The UI currently uses Chinese; an English judge flow is a later release task.
 
 ## Demo mode versus live mode
 
