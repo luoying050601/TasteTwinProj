@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="900" viewBox="0 0 1280 900" shape-rendering="crispEdges">
+<defs><pattern id="floor" width="160" height="72" patternUnits="userSpaceOnUse"><rect width="160" height="72" fill="#d8c6a5"/><path d="M0 0H160M0 72H160M80 0V36M0 36H160M0 36V72M160 36V72" fill="none" stroke="#cbb896" stroke-width="3"/></pattern><pattern id="tile" width="64" height="64" patternUnits="userSpaceOnUse"><rect width="64" height="64" fill="#e9e5d5"/><path d="M0 0H64V64" fill="none" stroke="#dedaca" stroke-width="2"/></pattern></defs>
+<!-- Quiet cream walls and a spacious wood floor. -->
+<rect width="1280" height="900" fill="#eee7d5"/><rect y="150" width="1280" height="330" fill="url(#tile)"/><rect y="480" width="1280" height="420" fill="url(#floor)"/><rect y="472" width="1280" height="12" fill="#b39b79"/>
+<!-- Open window, with restrained garden colours. -->
+<rect x="878" y="134" width="228" height="210" fill="#c2af8e"/><rect x="890" y="146" width="204" height="186" fill="#c8d9d4"/><rect x="890" y="264" width="204" height="68" fill="#b9c7a3"/><path d="M890 264h36v-20h54v14h45v-25h69v99H890Z" fill="#a6ba93"/><rect x="984" y="146" width="12" height="186" fill="#ede4cb"/><rect x="890" y="230" width="204" height="10" fill="#ede4cb"/><rect x="864" y="344" width="256" height="12" fill="#af9773"/>
+<!-- Upper cabinets. -->
+<rect x="244" y="125" width="480" height="160" fill="#c0ae8c"/><rect x="252" y="133" width="148" height="144" fill="#dfd3b8"/><rect x="408" y="133" width="148" height="144" fill="#dfd3b8"/><rect x="564" y="133" width="152" height="144" fill="#dfd3b8"/><path d="M274 152h104v102H274Zm156 0h104v102H430Zm156 0h108v102H586Z" fill="none" stroke="#cdbd9d" stroke-width="4"/><path d="M377 194h7v22h-7Zm156 0h7v22h-7Zm158 0h7v22h-7Z" fill="#aa987a"/>
+<!-- Fridge with a small leaf magnet. -->
+<rect x="68" y="225" width="138" height="290" fill="#b7bba8"/><rect x="76" y="233" width="122" height="90" fill="#dce0ce"/><rect x="76" y="331" width="122" height="176" fill="#e2e5d5"/><rect x="86" y="267" width="8" height="34" fill="#a1a58f"/><rect x="86" y="349" width="8" height="48" fill="#a1a58f"/><path d="M158 258h16v8h-8v8h-16v-8h8Z" fill="#99ac80"/>
+<!-- Counter, sink and simple stove. -->
+<rect x="230" y="392" width="914" height="22" fill="#baa481"/><rect x="240" y="414" width="894" height="128" fill="#d2c19e"/><path d="M252 426h208v104H252Zm222 0h208v104H474Zm222 0h208v104H696Zm222 0h204v104H918Z" fill="#e1d3b7" stroke="#bfac88" stroke-width="4"/><path d="M332 440h48v6h-48Zm220 0h48v6h-48Zm222 0h48v6h-48Zm220 0h48v6h-48Z" fill="#ab9776"/>
+<rect x="788" y="382" width="150" height="16" fill="#99aaa0"/><rect x="808" y="385" width="110" height="10" fill="#c1d0c7"/><path d="M855 382v-43h36v15" fill="none" stroke="#a2b0a5" stroke-width="8"/>
+<rect x="542" y="380" width="150" height="18" fill="#adae9c"/><path d="M560 382h35v10h-35Z" fill="#838979"/><rect x="640" y="382" width="34" height="10" fill="#838979"/>
+<!-- Cutting board and a few vegetables. -->
+<rect x="300" y="382" width="116" height="12" fill="#c6ac7f"/><path d="M330 370h18v12h-18Zm22-8h12v20h-12Z" fill="#9eaf77"/><rect x="374" y="373" width="14" height="10" fill="#d3a486"/>
+<!-- Plant and a low stool. -->
+<rect x="1170" y="462" width="50" height="52" fill="#c5a581"/><path d="M1190 462v-54h10v54Zm-20-65h25v19h-25Zm28-20h26v20h-26Zm-32-18h27v18h-27Z" fill="#9bab80"/><rect x="1010" y="664" width="94" height="18" fill="#b6a07b"/><path d="M1022 682h10v57h-10Z" fill="#a28b66"/><rect x="1082" y="682" width="10" height="57" fill="#a28b66"/>
+<!-- Soft woven mat beneath the companion. -->
+<rect x="476" y="626" width="320" height="140" fill="#bdc7a0"/><rect x="490" y="638" width="292" height="116" fill="#cdd4b8"/><path d="M490 650h292M490 742h292" stroke="#b6c197" stroke-width="5"/>
+</svg>

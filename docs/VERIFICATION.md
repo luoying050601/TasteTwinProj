@@ -23,3 +23,5 @@ Language update: English default, Japanese and Simplified Chinese shared JSON di
 Responsive update: production build passes. Browser verified 375px home, recommendation and selected Twin at scrollWidth=clientWidth; 320px Twin has no horizontal overflow; 768px tablet home uses two columns and no horizontal overflow. Touch controls use 44px minimum targets, mobile inputs use 16px fonts. Desktop retains four cards. Real iOS/Android devices have not yet been tested.
 
 Kitchen scene update: full-image entrance → kitchen hotspot → input/confirmation/recommendation dialog → selection → happy companion → close dialog verified in browser. At 375px, document width stays 375px, resident bottom 368px remains above dialog top 398px. Production build and 18 API tests pass. Dialog supports close button, Escape and keyboard focus containment.
+
+Calm kitchen backdrop update: independent SVG with muted cabinets, tiles and floor. Desktop visual inspection and 375px dialog check passed (scrollWidth=clientWidth). Welcome image unchanged. Production build passes.
