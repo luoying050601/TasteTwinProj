@@ -3,9 +3,9 @@ services:
     name: tastetwin-api
     runtime: python
     plan: free
-    rootDir: apps/api
-    buildCommand: bash ../../scripts/build-render.sh
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    rootDir: .
+    buildCommand: bash scripts/build-render.sh
+    startCommand: uvicorn app.main:app --app-dir apps/api --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
     envVars:
       - key: PYTHON_VERSION
