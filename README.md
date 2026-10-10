@@ -4,21 +4,21 @@ Repository: https://github.com/luoying050601/TasteTwinProj
 
 Product name: TasteTwin.
 
-TasteTwin is a framework for choosing a next meal using nutrition goals, taste preferences, budget, and distance. The current version runs locally with a React frontend and a Python FastAPI backend. All restaurant, menu, nutrition, price, walking-time, and taste data are synthetic fixtures; no live Qloo or LLM calls are made.
+TasteTwin chooses a next meal using nutrition goals, taste preferences, budget, and distance. The React frontend defaults to synthetic demo data. The FastAPI 0.2 backend also supports real Qloo restaurant discovery, adult personal profiles, daily meal records, and source-backed menu ranking. No LLM calls are made.
 
 ## Why Qloo matters
 
-The intended live product uses Qloo cultural taste signals to discover and rank real places. Today the ON/OFF control rehearses this behavior on one eligible synthetic candidate pool. It demonstrates algorithmic re-ranking, not proof of Qloo integration.
+Qloo can connect liked artists, books, movies, brands or places to restaurant affinity, instead of relying only on cuisine keywords. The backend accepts verified entity/tag IDs and returns real affinity and explainability. Nutrition and allergy inputs are not Qloo signals. ON/OFF ranks the same eligible menu pool; OFF makes no Qloo request. Fixture mode still uses explicitly synthetic taste order.
 
 ## Architecture
 
-React + TypeScript + Vite → FastAPI → rule interpreter → deterministic nutrition engine → safety and eligibility filters → fixture taste adapter → menu catalog → hybrid ranker → Preview.
+React + TypeScript + Vite → FastAPI → rule interpreter → personal nutrition assessment → safety and eligibility filters → fixture or live Qloo adapter → source-backed menu/entity join → hybrid ranker → Preview.
 
 See [中文架构与实施路线](docs/ARCHITECTURE.zh-CN.md) for design-document conflicts, interface decisions, module boundaries, and next steps.
 
 ## Qloo integration status
 
-`apps/api/app/qloo.py` contains the provider boundary and an intentionally unimplemented live adapter. `DATA_MODE=fixture` is the only supported mode. A configured non-fixture mode returns `LIVE_NOT_IMPLEMENTED` from recommend instead of pretending to be live. Never reuse the fictional catalog as real restaurant menus. Qloo entity resolution, real insights requests, menu joins, provenance, bounded retries and account validation are still required.
+[apps/api/app/qloo.py](apps/api/app/qloo.py) implements official `/v2/insights` and `/v2/tags`, server-side authentication, bounded retries, affinity normalization, explainability and a per-process request budget. `/api/places` discovers real restaurants independently of the demo mode. `DATA_MODE=live_qloo` enables live recommendation processing; `MENU_CATALOG_PATH` supplies separately sourced menus joined by Qloo UUID, never by display name. Missing menus produce discovery-only results, not invented meals. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for examples. Real account credentials and coverage must still be verified after deployment.
 
 ## Run locally
 
@@ -51,11 +51,11 @@ Fixture results show `fixture`; turning taste OFF shows `baseline` plus `candida
 
 ## Data sources and limitations
 
-Five fictional candidate records are in `catalog.py`. Unknown nutrition is null, unknown allergen records do not pass active allergy restrictions, and empty results retain safety conditions. Only the fictional Tokyo scenario is supported. There is no real menu, map, health prediction, cross-device account, database, Agent framework, or model API. `trace` represents executed deterministic functions. Tests cover the fixture flow; live upstream failure tests remain pending.
+The default catalog contains five fictional Tokyo menus. Live mode never uses them. Unknown nutrition stays null; unknown allergens cannot pass an active allergy restriction. Real menus, nutrition, prices and routes require independent sources, not Qloo affinity. There is no map integration, diagnosis, cross-device account, database, Agent framework or model API. The current frontend does not yet collect the new personal/taste profiles or render the separate `placeDiscovery` list; these are backend API capabilities. Tests cover mock live responses, on/off, cache, source validation and failure fallback, not actual account acceptance.
 
 ## Safety and privacy
 
-Health and allergy inputs stay within the local backend. The Qloo provider interface only receives taste and city fields. Sessions use UUIDs and a one-hour expiry in a single process; restart discards all sessions. Start over deletes the active backend session. Only the language preference is stored in browser localStorage; health inputs and sessions are not persisted there. Use a single worker and a single instance until a shared session store is implemented. Logs omit full input bodies; nutrition values are general dietary support, not diagnosis.
+Health and allergy inputs stay within the backend. Qloo receives only allowlisted taste IDs, location and candidate entity IDs. Sessions use opaque UUIDs and a one-hour expiry in one process; restart discards all records. Treat the session UUID as a bearer capability. `/api/sessions/{session_id}` reads a snapshot; DELETE removes it. API responses use `Cache-Control: no-store`. Before public production use, add authenticated ownership, a shared durable store, per-user abuse controls and consent management. The global Qloo request budget is not a substitute for authentication. Logs omit request bodies; nutrition estimates are general wellness heuristics, not diagnosis or clinical plans.
 
 ## Deployment
 
@@ -71,7 +71,7 @@ The generated application source is MIT licensed; see LICENSE. The supplied hero
 
 ## Demo and verification
 
-Local preview is available at the addresses above while the dev process runs. Cloud URL, public visibility for judging, actual Qloo response evidence, agent framework proof, English UI, and submission recording remain future work. See `docs/VERIFICATION.md` for checks performed on this framework.
+The existing public demo is deployed; the latest local backend changes require a new deployment. Actual Qloo account acceptance and real-menu data remain unverified. See [docs/VERIFICATION.md](docs/VERIFICATION.md) for local checks and historical browser verification.
 
 ## Kitchen scene interaction
 

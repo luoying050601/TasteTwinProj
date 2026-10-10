@@ -1,1 +1,1153 @@
-{"openapi":"3.1.0","info":{"title":"TasteTwin API","description":"Framework with fixture data and deterministic rule parsing; live integrations are pending.","version":"0.1.0"},"paths":{"/api/health":{"get":{"summary":"Health","operationId":"health_api_health_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}}}}},"/api/interpret":{"post":{"summary":"Parse","operationId":"parse_api_interpret_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/InterpretRequest"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/api/recommend":{"post":{"summary":"Recommend","operationId":"recommend_api_recommend_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/RecommendRequest"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/api/refine":{"post":{"summary":"Refine","operationId":"refine_api_refine_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/RefineRequest"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/api/select":{"post":{"summary":"Select","operationId":"select_api_select_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/SelectRequest"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/api/sessions/{session_id}":{"delete":{"summary":"Delete Session","operationId":"delete_session_api_sessions__session_id__delete","parameters":[{"name":"session_id","in":"path","required":true,"schema":{"type":"string","title":"Session Id"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}}},"components":{"schemas":{"DailySummary":{"properties":{"proteinG":{"anyOf":[{"type":"number","minimum":0.0},{"type":"null"}],"title":"Proteing"},"targetProteinG":{"anyOf":[{"type":"number","exclusiveMinimum":0.0},{"type":"null"}],"title":"Targetproteing"},"fiberG":{"anyOf":[{"type":"number","minimum":0.0},{"type":"null"}],"title":"Fiberg"},"targetFiberG":{"anyOf":[{"type":"number","exclusiveMinimum":0.0},{"type":"null"}],"title":"Targetfiberg"},"fatG":{"anyOf":[{"type":"number","minimum":0.0},{"type":"null"}],"title":"Fatg"},"targetFatG":{"anyOf":[{"type":"number","exclusiveMinimum":0.0},{"type":"null"}],"title":"Targetfatg"},"fluidMl":{"anyOf":[{"type":"number","minimum":0.0},{"type":"null"}],"title":"Fluidml"},"targetFluidMl":{"anyOf":[{"type":"number","exclusiveMinimum":0.0},{"type":"null"}],"title":"Targetfluidml"},"sourceType":{"type":"string","enum":["fixture","manual"],"title":"Sourcetype","default":"manual"}},"additionalProperties":false,"type":"object","title":"DailySummary"},"HTTPValidationError":{"properties":{"detail":{"items":{"$ref":"#/components/schemas/ValidationError"},"type":"array","title":"Detail"}},"type":"object","title":"HTTPValidationError"},"InterpretRequest":{"properties":{"sessionId":{"type":"string","format":"uuid","title":"Sessionid"},"message":{"type":"string","maxLength":500,"minLength":1,"title":"Message"},"locale":{"type":"string","enum":["zh-CN","en-US","ja-JP"],"title":"Locale","default":"en-US"},"location":{"$ref":"#/components/schemas/Location"},"dailySummary":{"anyOf":[{"$ref":"#/components/schemas/DailySummary"},{"type":"null"}]},"allergens":{"items":{"type":"string","enum":["peanut","milk","egg","soy","wheat","fish","shellfish","sesame"]},"type":"array","maxItems":20,"title":"Allergens"}},"additionalProperties":false,"type":"object","required":["sessionId","message"],"title":"InterpretRequest"},"Location":{"properties":{"city":{"type":"string","maxLength":80,"title":"City","default":""},"lat":{"anyOf":[{"type":"number","maximum":90.0,"minimum":-90.0},{"type":"null"}],"title":"Lat"},"lng":{"anyOf":[{"type":"number","maximum":180.0,"minimum":-180.0},{"type":"null"}],"title":"Lng"}},"additionalProperties":false,"type":"object","title":"Location"},"RecommendRequest":{"properties":{"sessionId":{"type":"string","format":"uuid","title":"Sessionid"},"qlooEnabled":{"type":"boolean","title":"Qlooenabled","default":true},"limit":{"type":"integer","maximum":3.0,"minimum":1.0,"title":"Limit","default":3}},"additionalProperties":false,"type":"object","required":["sessionId"],"title":"RecommendRequest"},"RefineRequest":{"properties":{"sessionId":{"type":"string","format":"uuid","title":"Sessionid"},"refinement":{"type":"string","maxLength":200,"minLength":1,"title":"Refinement"}},"additionalProperties":false,"type":"object","required":["sessionId","refinement"],"title":"RefineRequest"},"SelectRequest":{"properties":{"sessionId":{"type":"string","format":"uuid","title":"Sessionid"},"candidateId":{"type":"string","maxLength":100,"minLength":1,"title":"Candidateid"}},"additionalProperties":false,"type":"object","required":["sessionId","candidateId"],"title":"SelectRequest"},"ValidationError":{"properties":{"loc":{"items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"type":"array","title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error Type"},"input":{"title":"Input"},"ctx":{"type":"object","title":"Context"}},"type":"object","required":["loc","msg","type"],"title":"ValidationError"}}}}
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "TasteTwin API",
+    "description": "Nutrition-aware meal recommendations and Qloo cultural taste discovery. Menu provenance is separate from place affinity.",
+    "version": "0.2.0"
+  },
+  "paths": {
+    "/api/me": {
+      "get": {
+        "summary": "My Profile",
+        "operationId": "my_profile_api_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "patch": {
+        "summary": "Update My Profile",
+        "operationId": "update_my_profile_api_me_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/places": {
+      "post": {
+        "summary": "Discover Places",
+        "operationId": "discover_places_api_places_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlacesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/taste/tags": {
+      "get": {
+        "summary": "Taste Tags",
+        "operationId": "taste_tags_api_taste_tags_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "title": "Query"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/interpret": {
+      "post": {
+        "summary": "Parse",
+        "operationId": "parse_api_interpret_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InterpretRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/recommend": {
+      "post": {
+        "summary": "Recommend",
+        "operationId": "recommend_api_recommend_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecommendRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/refine": {
+      "post": {
+        "summary": "Refine",
+        "operationId": "refine_api_refine_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefineRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/select": {
+      "post": {
+        "summary": "Select",
+        "operationId": "select_api_select_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/sessions/{session_id}": {
+      "delete": {
+        "summary": "Delete Session",
+        "operationId": "delete_session_api_sessions__session_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Session Records",
+        "operationId": "session_records_api_sessions__session_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DailySummary": {
+        "properties": {
+          "proteinG": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Proteing"
+          },
+          "targetProteinG": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Targetproteing"
+          },
+          "fiberG": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fiberg"
+          },
+          "targetFiberG": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Targetfiberg"
+          },
+          "fatG": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fatg"
+          },
+          "targetFatG": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Targetfatg"
+          },
+          "fluidMl": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fluidml"
+          },
+          "targetFluidMl": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Targetfluidml"
+          },
+          "caloriesKcal": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 50000,
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Calorieskcal"
+          },
+          "targetCaloriesKcal": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 10000,
+                "exclusiveMinimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Targetcalorieskcal"
+          },
+          "sodiumMg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100000,
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sodiummg"
+          },
+          "maxSodiumMg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 10000,
+                "exclusiveMinimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maxsodiummg"
+          },
+          "sourceType": {
+            "type": "string",
+            "enum": [
+              "fixture",
+              "manual"
+            ],
+            "title": "Sourcetype",
+            "default": "manual"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "DailySummary"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "InterpretRequest": {
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Sessionid"
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Message"
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "zh-CN",
+              "en-US",
+              "ja-JP"
+            ],
+            "title": "Locale",
+            "default": "en-US"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "dailySummary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DailySummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "allergens": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "peanut",
+                "milk",
+                "egg",
+                "soy",
+                "wheat",
+                "fish",
+                "shellfish",
+                "sesame"
+              ]
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Allergens"
+          },
+          "personalProfile": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PersonalProfile"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "consumedMeals": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/MealIntake"
+                },
+                "type": "array",
+                "maxItems": 30
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consumedmeals"
+          },
+          "tasteProfile": {
+            "$ref": "#/components/schemas/TasteProfile"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sessionId",
+          "message"
+        ],
+        "title": "InterpretRequest"
+      },
+      "Location": {
+        "properties": {
+          "city": {
+            "type": "string",
+            "maxLength": 80,
+            "title": "City",
+            "default": ""
+          },
+          "lat": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 90,
+                "minimum": -90
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lat"
+          },
+          "lng": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 180,
+                "minimum": -180
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lng"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Location"
+      },
+      "MealIntake": {
+        "properties": {
+          "mealId": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Mealid"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "proteinG": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1000,
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Proteing"
+          },
+          "fiberG": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1000,
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fiberg"
+          },
+          "fatG": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1000,
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fatg"
+          },
+          "fluidMl": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 20000,
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fluidml"
+          },
+          "caloriesKcal": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 10000,
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Calorieskcal"
+          },
+          "sodiumMg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 50000,
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sodiummg"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "mealId",
+          "name"
+        ],
+        "title": "MealIntake"
+      },
+      "PersonalProfile": {
+        "properties": {
+          "age": {
+            "type": "integer",
+            "maximum": 100,
+            "minimum": 18,
+            "title": "Age"
+          },
+          "weightKg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 300,
+                "minimum": 30
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weightkg"
+          },
+          "heightCm": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 230,
+                "minimum": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Heightcm"
+          },
+          "metabolicSex": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "female",
+                  "male"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metabolicsex"
+          },
+          "activity": {
+            "type": "string",
+            "enum": [
+              "sedentary",
+              "light",
+              "moderate",
+              "high"
+            ],
+            "title": "Activity",
+            "default": "sedentary"
+          },
+          "goal": {
+            "type": "string",
+            "enum": [
+              "balanced",
+              "protein_focus"
+            ],
+            "title": "Goal",
+            "default": "balanced"
+          },
+          "healthContext": {
+            "type": "string",
+            "enum": [
+              "general",
+              "clinical",
+              "pregnancy"
+            ],
+            "title": "Healthcontext",
+            "default": "general"
+          },
+          "mealFraction": {
+            "type": "number",
+            "maximum": 0.5,
+            "minimum": 0.2,
+            "title": "Mealfraction",
+            "default": 0.35
+          },
+          "allergens": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "peanut",
+                "milk",
+                "egg",
+                "soy",
+                "wheat",
+                "fish",
+                "shellfish",
+                "sesame"
+              ]
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Allergens"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "age"
+        ],
+        "title": "PersonalProfile"
+      },
+      "PlacesRequest": {
+        "properties": {
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "tasteProfile": {
+            "$ref": "#/components/schemas/TasteProfile"
+          },
+          "radiusMeters": {
+            "type": "integer",
+            "maximum": 20000,
+            "minimum": 100,
+            "title": "Radiusmeters",
+            "default": 2000
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 50,
+            "minimum": 1,
+            "title": "Limit",
+            "default": 10
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "location"
+        ],
+        "title": "PlacesRequest"
+      },
+      "ProfileUpdate": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Nickname"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "male",
+              "female",
+              "other",
+              "undisclosed"
+            ],
+            "title": "Gender"
+          },
+          "birthYear": {
+            "type": "integer",
+            "maximum": 9999,
+            "minimum": 1,
+            "title": "Birthyear"
+          },
+          "birthMonth": {
+            "type": "integer",
+            "maximum": 12,
+            "minimum": 1,
+            "title": "Birthmonth"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nickname",
+          "gender",
+          "birthYear",
+          "birthMonth"
+        ],
+        "title": "ProfileUpdate"
+      },
+      "RecommendRequest": {
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Sessionid"
+          },
+          "qlooEnabled": {
+            "type": "boolean",
+            "title": "Qlooenabled",
+            "default": true
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 3,
+            "minimum": 1,
+            "title": "Limit",
+            "default": 3
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sessionId"
+        ],
+        "title": "RecommendRequest"
+      },
+      "RefineRequest": {
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Sessionid"
+          },
+          "refinement": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Refinement"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sessionId",
+          "refinement"
+        ],
+        "title": "RefineRequest"
+      },
+      "SelectRequest": {
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Sessionid"
+          },
+          "candidateId": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Candidateid"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sessionId",
+          "candidateId"
+        ],
+        "title": "SelectRequest"
+      },
+      "TasteProfile": {
+        "properties": {
+          "likedEntityIds": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Likedentityids"
+          },
+          "likedTagIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Likedtagids"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "TasteProfile"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

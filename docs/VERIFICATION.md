@@ -1,5 +1,43 @@
 # Framework verification
 
+## Room profile character update
+
+The room character now directly opens personal information; the separate top-right account avatar has been removed. Saved gender and birth year/month drive both the room character and form preview. Twelve visual variants combine male/female/neutral styles with child (under 13), teen (13-17), adult (18-59) and senior (60+) presets. Other/undisclosed share neutral artwork. Age is inferred by UTC year/month, not exact birthday, and is not a medical or nutritional classification.
+
+Locally verified: six Playwright portal tests passed at desktop, 375px and 320px widths, including all twelve variants, the 13/18/60 year month boundaries, saved profile restoration, keyboard editing/focus return and preserved room movement. Frontend production build and four i18n tests passed. Production build reports a bundle-size warning; physical phone testing and deployment remain outside this check.
+
+## Supabase portal local verification
+
+Implemented and locally verified on 2026-10-10:
+
+- Backend: `python -m pytest tests -q` from `apps/api`: **52 passed** using the isolated Python 3.12 environment. Existing recommendation/Qloo/i18n tests use a deterministic test identity; dedicated authentication tests do not bypass the production auth dependency by default.
+- Auth MockTransport checks verified email, correct user Bearer/apikey forwarding, identity UUID filtering, profile read/update and sanitized auth/provider failures. Profile validation rejects blank nicknames, invalid genders/months, future years, boolean years and extra email fields.
+- API checks unauthenticated rejection, incomplete-profile gating, owner-only recommendation session read/refine/select/delete/reinterpretation, profile update persistence/readback, invalidation of only the owner's sessions, authenticated CORS and Swagger Bearer metadata.
+- Frontend: `npm run build` passes TypeScript and Vite production compilation.
+- Browser: `npm run test:portal --workspace @tastetwin/web`: **5 passed** using Chromium with mocked Supabase/Auth/API responses. A dedicated Vite server uses fake configuration and never connects to a live Supabase project. Run `npx playwright install chromium --only-shell` once to install its browser.
+- At 1280x900, 375x812 and 320x740: cover image loaded, no document horizontal overflow, first-login mandatory profile, Escape cannot bypass onboarding, future birth month blocked, profile save, male/neutral icon changes, edit/read-only email, birth year/month revision, refresh restoration, close-focus return and logout. Compact avatar width and title height have explicit assertions. Desktop and 375px screenshots were visually inspected; artifacts are generated under `apps/web/test-results` and ignored by Git.
+- Browser checks incorrect/expired-code recovery, resend countdown, three-language portal controls and Google PKCE authorization launch, successful code exchange and cancel callback cleanup. No browser runtime errors were observed in the tested profile flows.
+
+Still **unverified**: running the migration against real Supabase Postgres; direct Data API RLS using two actual users and an anonymous key; real SMTP delivery/rate limits; Google provider permissions/callbacks; same-email identity linking in both login orders; live project pause/quota behavior; deployment of these changes; real iOS/Android controls. The existing Starlette/httpx TestClient deprecation warning remains.
+
+Live acceptance checklist after configuration:
+
+1. Execute the migration, then use account A and account B to confirm each can select/update only its own profile directly through the Data API; anonymous access and user updates to UUID/email/timestamps must fail. Client insert/delete must fail. Verify email uniqueness and future-month rejection.
+2. Sign in via Google then email OTP with the same verified email, and repeat in reverse with a second account. UUID and saved profile must remain unchanged; do not manually merge unverified/different emails.
+3. Verify first-signup and returning-user OTP delivery, six-digit template, expiry, provider-side limits, configured redirect allowlist and Google audience.
+4. Confirm save/relogin survives API restart, while only temporary meal sessions expire. Reset must preserve basic profile. Another account must not be able to read, delete or overwrite a known meal-session UUID.
+5. Inspect desktop/mobile three-language screens, token expiry/offline retries, account switching and logout; confirm no former account's results remain. Confirm no tokens or profile contents appear in server logs.
+
+Historical verification below applies to earlier versions and does not certify the new live portal.
+
+## Backend 0.2 local verification
+
+Verified on 2026-10-09 using isolated Python 3.12 and the repository requirements: `python -m pytest tests -q`: **39 passed**. Coverage includes official Qloo GET request/header contracts with MockTransport, normalized UUID/affinity, sanitized 401/403/400 failures, bounded 429/5xx retry, per-process request budget, live discovery provenance, ON/OFF request isolation, stable menu pools, cached refinement without remaining taste matches, graceful baseline fallback, catalog sources/route origins, adult target estimates, unknown intake, duplicate meal rejection, session read/delete/no-store and three-language parity.
+
+The existing Starlette/httpx TestClient deprecation warning remains. Actual Qloo credentials, account host/permissions, live result coverage, menu-source truth/freshness and the newly implemented API deployment are **not verified** by these mock tests. The current frontend remains the demo UI; new profile and discovery UI work is not included. Historical verification below describes earlier versions and is not a claim about live Qloo acceptance.
+
+## Original fixture verification
+
 Verified locally on 2026-10-09 (Asia/Tokyo), Node 22.22.0 and Python 3.14.6.
 
 - npm run test: 18 backend tests pass, including four parameterized nutrition threshold cases.

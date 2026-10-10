@@ -10,3 +10,6 @@ __pycache__/
 .vercel
 
 apps/api/app/static/
+test-results/
+playwright-report/
+.env*
