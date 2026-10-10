@@ -1,5 +1,13 @@
 # Deployment
 
+## User notebook migration
+
+Persistent region additionally requires `supabase/migrations/202610100003_notebook_city.sql`, applied once after 002. It adds only the city column and its least-privilege grants, preserving existing user preferences and health records. Region lookup uses the public Photon endpoint by default; optional `VITE_GEOCODER_URL` can select a compatible endpoint at frontend build time. No map-service key is required, but public-service quotas/availability must be considered before large-scale use.
+
+The notebook is a collection-only addition: it stores dietary preferences and append-only health snapshots, without changing the recommendation engine. Before using its save/load functions on a real project, run `supabase/migrations/202610100002_user_notebook.sql` once in SQL Editor after the original profile migration. Do not rerun an applied migration or modify existing account rows. No additional environment variables or privileged service keys are required.
+
+Health records allow authenticated owner-only SELECT/INSERT, not UPDATE/DELETE. Preferences allow owner-only current-value edits. If this migration has not been applied, the notebook reports unavailable and does not overwrite data with empty defaults. Existing login and recommendation flows remain usable. See [USER_DATA_V3.5.md](USER_DATA_V3.5.md) for fields, APIs, draft behavior and the isolated database verification command. This local implementation has not executed a cloud migration or deployment.
+
 ## Supabase portal setup
 
 The portal now requires verified Google or email-code authentication. First login requires nickname, gender and birth year/month before business APIs become available. Existing deployment records below are historical; this change has not been published or connected to a live Supabase project.

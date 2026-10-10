@@ -1,5 +1,33 @@
 # Framework verification
 
+## Independent Fridge Taste Panel
+
+The fridge opens a standalone Personal tastes panel, not the three-tab notebook. It reuses the current area/cuisine/allergy/avoidance form without book styling, profile fields, health fields or health-record requests. Closing restores the triggering control; the character notebook remains the full book starting on Personal profile. No new database/API changes or recommendation-data integration are introduced.
+
+Eighteen Playwright tests, production build and four i18n tests passed. Fridge tests assert an independent dialog title, zero tabs/flyleaf/profile/health sections, zero health reads, saved region readback from the full character notebook, fridge focus return and document width at 1280/375/320px. Desktop/mobile standalone-panel screenshots were inspected. No commit or deployment performed.
+
+## Persistent Region And Expanded Cuisines
+
+Region is now saved with dietary preferences and restored on reload. Migration 003 adds only city and its column privileges, retaining existing preferences and health snapshots; older requests omitting city preserve its saved value. Keyword suggestions and explicit browser geolocation use Photon/OpenStreetMap; permission/network errors retain manual entry. Exact coordinates are not stored. Twenty-four cuisine choices have Chinese/Japanese/English labels and remain separate from recommendation logic.
+
+Verified locally: 14 Playwright tests, 76 backend tests, production build and all three migrations via isolated PGlite. Browser checks cover saved location restoration, keyword keyboard selection, denied location permission, unavailable lookup with manual save, late-response suppression and 24 cuisine controls at desktop/mobile widths. Public Photon search/reverse smoke checks returned HTTP 200 with CORS support using canned Tokyo coordinates; no user's position was queried. The keyword candidate screenshot was inspected. Production service availability is not guaranteed, and actual Supabase migration 003/save acceptance remains operator work. No commit or deployment was performed.
+
+## Book-style notebook interaction
+
+Updated 2026-10-10: click character to reveal/collapse the adjacent notebook; only clicking the notebook opens the three data tabs. The standalone room profile popup is removed; initial registration remains unchanged. The revealed notebook tracks walking, and Escape on the character collapses it. Desktop notebook has a two-page spread and floating green/teal/rose leaf tabs; mobile uses top leaves with the form scrolling independently of the book header.
+
+Eleven Playwright tests and production build passed. Coverage includes reveal/collapse/following, keyboard use, leaf labels/controls within the 1280/375/320px viewports, original character variants, profile edits and unchanged append-only health history. Desktop and mobile book screenshots were inspected. No API, database migration or data-saving rules changed in this UI update; production bundle warning remains.
+
+## User notebook collection
+
+Local implementation on 2026-10-10: three-language notebook beside the room character; basic profile form reuse; independently stored dietary preferences; complete health snapshots appended without historical overwrites; derived BMI, explicit unknown body fat, goal/chronotype/three meal habits, historical copy and unsaved-draft protection. Current city/cuisine/ambience remain form-only, not recommendation inputs or stored defaults.
+
+Ten Playwright tests passed across 1280px, 375px and 320px, including original login/character flows and new collection, three-language switching, failed preference save retaining draft, copy/edit/add retaining original historical payload, reload persistence and ephemeral city reset. Desktop/375px notebook screenshots were inspected. The full production build passes with the existing bundle-size warning.
+
+Full backend regression: 75 tests passed. Isolated PGlite PostgreSQL verification passed both migrations, two-user RLS, anonymous access denial, health UPDATE/DELETE denial, immutable timestamp input privileges, dietary identity column protection and selection consistency. The script is scripts/check-notebook-db.mjs; no cloud credentials are used. Dedicated backend tests cover input validation, snapshot append/replay/conflict/BMI and absence of health overwrite routes. Existing recommendation sessions are retained when notebook data is saved.
+
+Actual Supabase execution of the new migration and real-account save/read/history verification are still pending. No cloud migration, commit or deployment was performed in this implementation. Health consent workflow, daily intake logs and recommendation integration are not part of this release.
+
 ## Room profile character update
 
 The room character now directly opens personal information; the separate top-right account avatar has been removed. Saved gender and birth year/month drive both the room character and form preview. Twelve visual variants combine male/female/neutral styles with child (under 13), teen (13-17), adult (18-59) and senior (60+) presets. Other/undisclosed share neutral artwork. Age is inferred by UTC year/month, not exact birthday, and is not a medical or nutritional classification.

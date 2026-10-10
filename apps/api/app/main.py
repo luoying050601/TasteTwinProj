@@ -31,6 +31,7 @@ from .auth import (
     current_account,
     complete_account,
 )
+from .notebook import NotebookError, DietaryPreferences, HealthCreate, notebook_store
 
 load_dotenv()
 
@@ -170,6 +171,51 @@ async def update_my_profile(
         if sessions[sid].get("userId") == account.id:
             sessions.pop(sid, None)
     return ok(request, updated.public())
+
+
+@app.exception_handler(NotebookError)
+async def notebook_error(request, exc):
+    return error_response(request, exc.code, exc.code, exc.status, exc.retryable)
+
+
+@app.get("/api/me/dietary-preferences")
+async def dietary_preferences(
+    request: Request, account=Depends(complete_account), store=Depends(notebook_store)
+):
+    data = await store.dietary(account)
+    return ok(request, data.model_dump(mode="json", by_alias=True))
+
+
+@app.patch("/api/me/dietary-preferences")
+async def save_dietary_preferences(
+    body: DietaryPreferences,
+    request: Request,
+    account=Depends(complete_account),
+    store=Depends(notebook_store),
+):
+    data = await store.save_dietary(account, body)
+    return ok(request, data.model_dump(mode="json", by_alias=True))
+
+
+@app.get("/api/me/health-records")
+async def health_records(
+    request: Request,
+    offset: int = Query(default=0, ge=0, le=100000),
+    limit: int = Query(default=20, ge=1, le=50),
+    account=Depends(complete_account),
+    store=Depends(notebook_store),
+):
+    return ok(request, await store.history(account, offset, limit))
+
+
+@app.post("/api/me/health-records")
+async def add_health_record(
+    body: HealthCreate,
+    request: Request,
+    account=Depends(complete_account),
+    store=Depends(notebook_store),
+):
+    return ok(request, await store.add_health(account, body))
 
 
 @app.exception_handler(QlooError)

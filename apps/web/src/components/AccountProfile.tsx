@@ -4,7 +4,7 @@ import { useI18n } from '../i18n';
 import type { Gender, Profile, UserAccount } from '../useAuth';
 import PixelTwin from './PixelTwin';
 
-export default function AccountProfile({ account, onSave, onClose, onSignOut }: { account: UserAccount; onSave: (profile: Profile) => Promise<void>; onClose?: () => void; onSignOut: () => Promise<void> }) {
+export default function AccountProfile({ account, onSave, onClose, onSignOut, embedded = false, onDirty }: { account: UserAccount; onSave: (profile: Profile) => Promise<void>; onClose?: () => void; onSignOut: () => Promise<void>; embedded?: boolean; onDirty?: (dirty: boolean) => void }) {
     const { t } = useI18n();
     const [nickname, setNickname] = useState(account.profile.nickname || '');
     const [gender, setGender] = useState<Gender | ''>(account.profile.gender || '');
@@ -15,10 +15,15 @@ export default function AccountProfile({ account, onSave, onClose, onSignOut }: 
     const now = new Date();
     const maximum = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
     useEffect(() => {
+        if (embedded) return;
         const previous = document.activeElement as HTMLElement | null;
         ref.current?.querySelector<HTMLInputElement>('input:not([readonly])')?.focus();
         return () => previous?.focus();
-    }, []);
+    }, [embedded]);
+    useEffect(() => {
+        const savedBirth = account.profile.birthYear && account.profile.birthMonth ? `${String(account.profile.birthYear).padStart(4, '0')}-${String(account.profile.birthMonth).padStart(2, '0')}` : '';
+        onDirty?.(nickname !== (account.profile.nickname || '') || gender !== (account.profile.gender || '') || birth !== savedBirth);
+    }, [nickname, gender, birth, account.profile, onDirty]);
     async function submit() {
         if (!gender || !birth || !nickname.trim()) { setError('PROFILE_INVALID'); return; }
         setBusy(true); setError('');
@@ -31,17 +36,8 @@ export default function AccountProfile({ account, onSave, onClose, onSignOut }: 
             setError(code);
         } finally { setBusy(false); }
     }
-    return <div className="account-backdrop"><div className="account-dialog" ref={ref} role="dialog" aria-modal="true" aria-labelledby="account-title" onKeyDown={event => {
-        if (event.key === 'Escape' && !busy && onClose) { onClose(); return; }
-        if (event.key === 'Tab') {
-            const controls = Array.from(ref.current?.querySelectorAll<HTMLElement>('button:not(:disabled),input,select') || []);
-            const first = controls[0], last = controls[controls.length - 1];
-            if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
-            else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
-        }
-    }}>
-        {onClose && <button className="account-close icon-button" aria-label={t('closePanel')} title={t('closePanel')} disabled={busy} onClick={onClose}><X size={20} /></button>}
-        <div className="account-heading"><PixelTwin compact gender={gender || 'undisclosed'} birthYear={Number(birth.split('-')[0])} birthMonth={Number(birth.split('-')[1])} /><h2 id="account-title">{t(onClose ? 'accountTitle' : 'completeProfile')}</h2></div>
+    const content = <>
+        <div className="account-heading"><PixelTwin compact gender={gender || 'undisclosed'} birthYear={Number(birth.split('-')[0])} birthMonth={Number(birth.split('-')[1])} /><h2 id={embedded ? 'notebook-profile-heading' : 'account-title'}>{t(embedded || onClose ? 'accountTitle' : 'completeProfile')}</h2></div>
         <form onSubmit={event => { event.preventDefault(); void submit(); }}>
             <fieldset disabled={busy} className="account-fields">
                 <label htmlFor="account-email">{t('email')}</label><input id="account-email" type="email" value={account.email} readOnly />
@@ -52,5 +48,18 @@ export default function AccountProfile({ account, onSave, onClose, onSignOut }: 
             {error && <p className="auth-error" role="alert">{t(error)}</p>}
             <div className="account-actions"><button className="primary" disabled={busy}><Save size={16} />{t(busy ? 'savingProfile' : 'saveProfile')}</button><button type="button" className="icon-button" disabled={busy} aria-label={t('signOut')} title={t('signOut')} onClick={() => void onSignOut()}><LogOut size={18} /></button></div>
         </form>
+    </>;
+    if (embedded) return <section className="notebook-profile">{content}</section>;
+    return <div className="account-backdrop"><div className="account-dialog" ref={ref} role="dialog" aria-modal="true" aria-labelledby="account-title" onKeyDown={event => {
+        if (event.key === 'Escape' && !busy && onClose) { onClose(); return; }
+        if (event.key === 'Tab') {
+            const controls = Array.from(ref.current?.querySelectorAll<HTMLElement>('button:not(:disabled),input,select') || []);
+            const first = controls[0], last = controls[controls.length - 1];
+            if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+            else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+        }
+    }}>
+        {onClose && <button className="account-close icon-button" aria-label={t('closePanel')} title={t('closePanel')} disabled={busy} onClick={onClose}><X size={20} /></button>}
+        {content}
     </div></div>;
 }

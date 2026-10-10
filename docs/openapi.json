@@ -66,6 +66,162 @@
         ]
       }
     },
+    "/api/me/dietary-preferences": {
+      "get": {
+        "summary": "Dietary Preferences",
+        "operationId": "dietary_preferences_api_me_dietary_preferences_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "patch": {
+        "summary": "Save Dietary Preferences",
+        "operationId": "save_dietary_preferences_api_me_dietary_preferences_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DietaryPreferences"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/me/health-records": {
+      "get": {
+        "summary": "Health Records",
+        "operationId": "health_records_api_me_health_records_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100000,
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add Health Record",
+        "operationId": "add_health_record_api_me_health_records_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HealthCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/health": {
       "get": {
         "summary": "Health",
@@ -580,6 +736,93 @@
         "type": "object",
         "title": "DailySummary"
       },
+      "DietaryPreferences": {
+        "properties": {
+          "city": {
+            "type": "string",
+            "maxLength": 80,
+            "title": "City",
+            "default": ""
+          },
+          "allergyStatus": {
+            "type": "string",
+            "enum": [
+              "unknown",
+              "none",
+              "selected"
+            ],
+            "title": "Allergystatus",
+            "default": "unknown"
+          },
+          "allergens": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "milk",
+                "egg",
+                "peanut",
+                "tree_nut",
+                "fish",
+                "crustacean",
+                "sesame",
+                "wheat",
+                "soy",
+                "mango",
+                "other"
+              ]
+            },
+            "type": "array",
+            "maxItems": 11,
+            "title": "Allergens"
+          },
+          "allergyOther": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Allergyother",
+            "default": ""
+          },
+          "avoidanceStatus": {
+            "type": "string",
+            "enum": [
+              "unknown",
+              "none",
+              "selected"
+            ],
+            "title": "Avoidancestatus",
+            "default": "unknown"
+          },
+          "avoidedFoods": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "cilantro",
+                "scallion",
+                "ginger",
+                "garlic",
+                "pork",
+                "beef",
+                "lamb",
+                "offal_blood",
+                "fish_seafood",
+                "alcohol",
+                "other"
+              ]
+            },
+            "type": "array",
+            "maxItems": 11,
+            "title": "Avoidedfoods"
+          },
+          "avoidanceOther": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Avoidanceother",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "DietaryPreferences"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -592,6 +835,107 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "HealthCreate": {
+        "properties": {
+          "weightKg": {
+            "type": "number",
+            "maximum": 500,
+            "exclusiveMinimum": 0,
+            "title": "Weightkg"
+          },
+          "heightCm": {
+            "type": "number",
+            "maximum": 300,
+            "minimum": 30,
+            "title": "Heightcm"
+          },
+          "bodyFatStatus": {
+            "type": "string",
+            "enum": [
+              "unknown",
+              "measured"
+            ],
+            "title": "Bodyfatstatus"
+          },
+          "bodyFatPct": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMaximum": 100,
+                "exclusiveMinimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bodyfatpct"
+          },
+          "goal": {
+            "type": "string",
+            "enum": [
+              "build_muscle",
+              "lose_fat",
+              "wellness",
+              "no_specific_goal"
+            ],
+            "title": "Goal"
+          },
+          "chronotype": {
+            "type": "string",
+            "enum": [
+              "morning",
+              "evening",
+              "intermediate"
+            ],
+            "title": "Chronotype"
+          },
+          "breakfastHabit": {
+            "type": "string",
+            "enum": [
+              "often",
+              "sometimes",
+              "never"
+            ],
+            "title": "Breakfasthabit"
+          },
+          "lunchHabit": {
+            "type": "string",
+            "enum": [
+              "often",
+              "sometimes",
+              "never"
+            ],
+            "title": "Lunchhabit"
+          },
+          "dinnerHabit": {
+            "type": "string",
+            "enum": [
+              "often",
+              "sometimes",
+              "never"
+            ],
+            "title": "Dinnerhabit"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "weightKg",
+          "heightCm",
+          "bodyFatStatus",
+          "goal",
+          "chronotype",
+          "breakfastHabit",
+          "lunchHabit",
+          "dinnerHabit"
+        ],
+        "title": "HealthCreate"
       },
       "InterpretRequest": {
         "properties": {

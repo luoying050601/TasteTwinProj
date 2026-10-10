@@ -6,7 +6,8 @@ import KitchenRoom from './components/KitchenRoom';
 import { useI18n, translate, type Translate } from './i18n';
 import { useAuth } from './useAuth';
 import AuthPortal from './components/AuthPortal';
-import AccountProfile from './components/AccountProfile';
+import UserNotebook, { type Tab as NotebookTab } from './components/UserNotebook';
+import { emptyNotebookSession, type NotebookSession } from './notebook';
 import './auth.css';
 
 
@@ -20,8 +21,11 @@ export default function App() {
   const example = t('sample');
   const call = <T,>(path: string, body?: unknown, method = 'POST') => api<T>(path, body, method, locale);
   function changeLanguage(next: typeof locale) { if (['en-US', 'ja-JP', 'zh-CN'].some(x => message === translate(x as typeof locale, 'sample'))) setMessage(translate(next, 'sample')); setLocale(next); }
-  const [view, setView] = useState<'home' | 'profile' | 'today' | 'discover' | 'twin'>('home');
-  const [accountOpen, setAccountOpen] = useState(false);
+  const [view, setView] = useState<'home' | 'today' | 'discover' | 'twin'>('home');
+  const [notebookOpen, setNotebookOpen] = useState(false);
+  const [notebookTab, setNotebookTab] = useState<NotebookTab>('profile');
+  const notebookReturn = useRef<HTMLElement | null>(null);
+  const [notebookSession, setNotebookSession] = useState<NotebookSession>(emptyNotebookSession);
   const [saved, setSaved] = useState('');
   const [sessionId, setSessionId] = useState(() => crypto.randomUUID());
   const [message, setMessage] = useState(example);
@@ -39,6 +43,7 @@ export default function App() {
   const [working, setWorking] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const avatarRef = useRef<HTMLButtonElement>(null);
+  const notebookRef = useRef<HTMLButtonElement>(null);
   const retry = useRef<null | (() => void)>(null);
   const lock = useRef(false);
   const revision = useRef(0);
@@ -83,9 +88,10 @@ export default function App() {
 
   useEffect(() => { if (view === 'home') return; const previous = document.activeElement as HTMLElement | null; dialogRef.current?.querySelector<HTMLButtonElement>('.panel-close')?.focus(); return () => previous?.focus(); }, [view]);
   const accountKey = JSON.stringify([auth.account?.id, auth.account?.profile]);
+  useEffect(() => { setNotebookOpen(false); setNotebookSession(emptyNotebookSession); }, [auth.account?.id]);
   useEffect(() => {
     revision.current++; lock.current = false; retry.current = null;
-    setWorking(false); setView('home'); setAccountOpen(false); setSaved(''); setSessionId(crypto.randomUUID()); setParsed(null); setResults(null); setSelection(null); setRefinement(''); setStage('START'); setError(null); setMessage(example); setCity('Tokyo'); setAllergens(''); setSummaryMode('fixture'); setActual('42'); setTarget('65'); setEnabled(true);
+    setWorking(false); setView('home'); setSaved(''); setSessionId(crypto.randomUUID()); setParsed(null); setResults(null); setSelection(null); setRefinement(''); setStage('START'); setError(null); setMessage(example); setCity('Tokyo'); setAllergens(''); setSummaryMode('fixture'); setActual('42'); setTarget('65'); setEnabled(true);
   }, [accountKey]);
   useEffect(() => { window.scrollTo({ top: 0, behavior: 'auto' }); }, [view]);
   useEffect(() => { setParsed(null); setResults(null); setSelection(null); setStage('START'); }, [city, allergens, summaryMode, actual, target]);
@@ -101,19 +107,19 @@ export default function App() {
     { id: 'discover' as const, num: '03', title: t('discoverTitle'), english: t('discoverTag'), icon: 'map', hint: t('discoverHint') },
     { id: 'twin' as const, num: '04', title: t('twinTitle'), english: t('twinTag'), icon: 'heart', hint: t('twinHint') },
   ];
-  function openArea(id: typeof view) { setView(id); setSaved(''); setError(null); }
+  function openNotebook(tab: NotebookTab) { notebookReturn.current = document.activeElement as HTMLElement | null; setNotebookTab(tab); setNotebookOpen(true); }
+  function openArea(id: typeof view | 'profile') { if (id === 'profile') { setView('home'); setSaved(''); setError(null); openNotebook('tastes'); return; } setView(id); setSaved(''); setError(null); }
   const errorPanel = error && <div className="error" role="alert"><strong>{t(error.code)}</strong><small>{error.code} {error.requestId}</small><div>{error.retryable && <button disabled={busy} onClick={() => retry.current?.()}>{t('retry')}</button>}<button disabled={busy} onClick={() => { setError(null); setStage('START'); setView('discover'); }}>{t('editRequest')}</button></div></div>;
   const ratio = summaryMode === 'none' ? null : (summaryMode === 'fixture' ? 42 : Number(actual)) / (summaryMode === 'fixture' ? 65 : Math.max(1, Number(target)));
   const vitality = ratio === null ? 'unknown' : ratio >= 1 ? 'balanced' : ratio >= .6 ? 'growing' : 'low';
   if (auth.status !== 'ready' || !auth.account?.profileComplete) return <AuthPortal auth={auth} />;
-  return <><div inert={accountOpen} className={`shell interactive-shell world-shell world-shell--${vitality}`}>
-    <header className="topbar"><button className="brand brand-home" onClick={() => openArea('home')} disabled={busy} aria-label={t('backHome')}><span className="brand-icon">✿</span>Taste<span>Twin</span></button><div className="header-actions"><label className="language-control"><span className="sr-only">{t('language')}</span><select aria-label={t('language')} value={locale} disabled={busy} onChange={e => changeLanguage(e.target.value as typeof locale)}><option value="en-US">EN</option><option value="ja-JP">日本語</option><option value="zh-CN">中文</option></select></label><details className="data-status"><summary className="mode">● {t('demo')}{mode === 'baseline' ? ` · ${t('tasteOff')}` : ''}</summary><div>{t('dataNotice')}</div></details><button className="text-button" disabled={busy} onClick={() => void reset()}>{t('reset')} ↺</button></div></header>
+  return <><div inert={notebookOpen} className={`shell interactive-shell world-shell world-shell--${vitality}`}>
+    <header className="topbar"><button className="brand brand-home" onClick={() => openArea('home')} disabled={busy} aria-label={t('backHome')}><span className="brand-icon">✿</span>Taste<span>Twin</span></button><div className="header-actions"><label className="language-control"><span className="sr-only">{t('language')}</span><select aria-label={t('language')} value={locale} disabled={busy} onChange={e => changeLanguage(e.target.value as typeof locale)}><option value="en-US">EN</option><option value="ja-JP">日本語</option><option value="zh-CN">中文</option></select></label><details hidden className="data-status"><summary className="mode">● {t('demo')}{mode === 'baseline' ? ` · ${t('tasteOff')}` : ''}</summary><div>{t('dataNotice')}</div></details><button hidden className="text-button" disabled={busy} onClick={() => void reset()}>{t('reset')} ↺</button></div></header>
     <main>
-      <KitchenRoom open={view !== 'home' || accountOpen} busy={busy} selection={!!selection} vitality={vitality} onOpen={openArea} gender={auth.account.profile.gender || 'undisclosed'} birthYear={auth.account.profile.birthYear} birthMonth={auth.account.profile.birthMonth} avatarRef={avatarRef} onEditProfile={() => setAccountOpen(true)} />
+      <KitchenRoom open={view !== 'home' || notebookOpen} busy={busy} selection={!!selection} vitality={vitality} onOpen={openArea} gender={auth.account.profile.gender || 'undisclosed'} birthYear={auth.account.profile.birthYear} birthMonth={auth.account.profile.birthMonth} avatarRef={avatarRef} notebookRef={notebookRef} onOpenNotebook={() => openNotebook('profile')} />
       {view !== 'home' && <div className="scene-overlay" ref={dialogRef} role="dialog" aria-modal="true" aria-label={areas.find(a => a.id === view)?.title} onKeyDown={e => { if (e.key === 'Escape' && !busy) { openArea('home'); return; } if (e.key === 'Tab') { const nodes = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled),textarea:not(:disabled),select:not(:disabled),summary,[tabindex="0"]') || []); const first = nodes[0], last = nodes[nodes.length - 1]; if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last?.focus(); } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus(); } } }}><button className="panel-close" disabled={busy} onClick={() => openArea('home')} aria-label={t('closePanel')}>×</button>
         <div className="area-content">
           {errorPanel}
-          {view === 'profile' && <section className="panel settings-panel"><div className="section-heading"><p className="eyebrow">01 / {t('profileTag')}</p><h2>{t('profileTitle')}</h2></div><div className="settings-grid"><div><label htmlFor="city">{t('city')}</label><input id="city" value={city} onChange={e => { setCity(e.target.value); setSaved(''); }} maxLength={80} /><small className="caption">{t('fixtureCity')}</small></div><div><label htmlFor="allergens">{t('allergens')}</label><input id="allergens" placeholder={t('allergenPlaceholder')} value={allergens} onChange={e => { setAllergens(e.target.value); setSaved(''); }} /><small className="caption">{allergens ? t('allergenExcluded') : t('optional')}</small></div></div><fieldset className="preference-group"><legend>{t('cuisine')}</legend><div className="preference-buttons">{['Japanese', 'Italian', 'Chinese'].map(x => <button type="button" key={x} aria-pressed={(message.includes(x) || message.includes(t(x)))} className={(message.includes(x) || message.includes(t(x))) ? 'active' : ''} onClick={() => { setMessage(t('cuisineSample', { cuisine: t(x) })); setSaved(''); }}>{t(x)}</button>)}</div></fieldset><fieldset className="preference-group"><legend>{t('avoid')}</legend><div className="preference-buttons">{['peanut', 'milk', 'egg', 'soy', 'wheat', 'fish', 'shellfish', 'sesame'].map(code => { const chosen = allergens.split(',').map(x => x.trim()).filter(Boolean); return <button type="button" key={code} aria-pressed={chosen.includes(code)} className={chosen.includes(code) ? 'active' : ''} onClick={() => { setAllergens((chosen.includes(code) ? chosen.filter(x => x !== code) : [...chosen, code]).join(', ')); setSaved(''); }}>{t(code)}</button>; })}</div></fieldset><div className="actions"><button className="primary" onClick={saveSettings}>{t('saveSettings')} ✓</button><button onClick={() => { if (saveSettings()) setView('discover'); }}>{t('goChoose')} →</button><span className="saved" role="status">{saved && t(saved)}</span></div></section>}
           {view === 'today' && <section className="panel today-panel"><div className="section-heading"><p className="eyebrow">02 / {t('todayTag')}</p><h2>{t('todayTitle')}</h2></div><div className="nutrition-dashboard"><span>{t('protein')}</span><strong>{summaryMode === 'none' ? '—' : summaryMode === 'fixture' ? 42 : actual}<small> / {summaryMode === 'none' ? '—' : summaryMode === 'fixture' ? 65 : target} g</small></strong><progress aria-label={t('proteinProgress')} value={summaryMode === 'none' ? 0 : summaryMode === 'fixture' ? 42 : Number(actual) || 0} max={summaryMode === 'fixture' ? 65 : Math.max(1, Number(target) || 1)} /><span className="caption">{summaryMode === 'fixture' ? t('demoDaily') : summaryMode === 'manual' ? t('manualDaily') : t('unavailable')}</span></div><label htmlFor="summary">{t('nutritionRecord')}</label><select id="summary" value={summaryMode} onChange={e => { setSummaryMode(e.target.value as typeof summaryMode); setSaved(''); }}><option value="fixture">{t('useDemo')}</option><option value="manual">{t('manualInput')}</option><option value="none">{t('noneInput')}</option></select>{summaryMode === 'manual' && <div className="settings-grid"><div><label htmlFor="actual">{t('actual')}</label><input id="actual" type="number" min="0" step="any" value={actual} onChange={e => { setActual(e.target.value); setSaved(''); }} /></div><div><label htmlFor="target">{t('target')}</label><input id="target" type="number" min="0.01" step="any" value={target} onChange={e => { setTarget(e.target.value); setSaved(''); }} /></div></div>}<div className="actions"><button className="primary" onClick={saveSettings}>{t('updateRecord')} ✓</button><span className="saved" role="status">{saved && t(saved)}</span></div></section>}
           {view === 'discover' && <section className="discover-area" aria-live="polite">
             {(stage === 'START' || stage === 'PARSING' || stage === 'SELECTED') && <section className="panel"><p className="eyebrow">03 / {t('discoverTag')}</p><h2>{t('discoverTitle')}</h2><form onSubmit={e => { e.preventDefault(); void interpret(); }}><label className="sr-only" htmlFor="message">{t('messageLabel')}</label><textarea id="message" rows={3} value={message} maxLength={500} placeholder={t('messageLabel')} onChange={e => setMessage(e.target.value)} disabled={busy} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void interpret(); } }} /><div className="input-bottom"><button type="button" className="text-button" disabled={busy} onClick={() => setMessage(example)}>{t('example')}</button><small>{message.length}/500</small></div><div className="search-context"><button type="button" onClick={() => openArea('profile')} disabled={busy}>⌖ {city || t('chooseArea')}</button><button type="button" onClick={() => openArea('profile')} disabled={busy}>{allergens ? t('allergensSet') : t('setPreferences')}</button><button type="button" onClick={() => openArea('today')} disabled={busy}>{t('todayNutrition')}</button></div><button className="primary" disabled={busy || !message.trim()}>{stage === 'PARSING' ? t('parsing') : `${t('findMeal')} →`}</button></form></section>}
@@ -126,5 +132,5 @@ export default function App() {
       </div>}
       <footer className="quiet-footer scene-footer"><span>TasteTwin</span><details><summary>{t('footer')}</summary><p>{t('privacy')}</p></details></footer>
     </main>
-  </div>{accountOpen && <AccountProfile account={auth.account} onSave={auth.save} onClose={() => { setAccountOpen(false); requestAnimationFrame(() => avatarRef.current?.focus()); }} onSignOut={auth.signOut} />}</>;
+  </div>{notebookOpen && <UserNotebook key={auth.account.id} initialTab={notebookTab} tastesOnly={notebookTab === 'tastes'} account={auth.account} onSaveProfile={auth.save} onSignOut={auth.signOut} session={notebookSession} onSessionChange={setNotebookSession} onClose={() => { setNotebookOpen(false); requestAnimationFrame(() => { if (notebookReturn.current?.isConnected) notebookReturn.current.focus(); else (notebookRef.current || avatarRef.current)?.focus(); }); }} />}</>;
 }
